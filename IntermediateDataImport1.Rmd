@@ -1,0 +1,588 @@
+---
+title: "Intermediate Data Import 1"
+author: "Renato Erazo"
+date: "1/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Working wiht mySql
+
+```{r}
+install.packages("RMySQL")
+```
+
+```{r}
+library(DBI)
+
+#Connect mysql
+
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "company",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+```
+```{r}
+str(con)
+```
+
+Listar las tablas
+
+```{r}
+dbListTables(con)
+```
+
+Leer una tabla
+```{r}
+empleados <- dbReadTable(con,"employees")
+dbReadTable(con,"products")
+dbReadTable(con,"sales")
+```
+
+```{r}
+ class(empleados)
+```
+
+Exercise
+
+```{r}
+con <- dbConnect(RMySQL::MySQL(), 
+                 dbname = "tweater", 
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com", 
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Build a vector of table names: tables
+tables <- dbListTables(con)
+
+# Display structure of tables
+str(tables)
+tables
+
+
+```
+
+
+Import users
+As you might have guessed by now, the database contains data on a more tasty version of Twitter, namely Tweater. Users can post tweats with short recipes for delicious snacks. People can comment on these tweats. There are three tables: users, tweats, and comments that have relations among them. Which ones, you ask? You'll discover in a moment!
+
+Let's start by importing the data on the users into your R session. You do this with the dbReadTable() function. Simply pass it the connection object (con), followed by the name of the table you want to import. The resulting object is a standard R data frame.
+
+Instructions
+100 XP
+Add code that imports the "users" table from the tweater database and store the resulting data frame as users.
+Print the users data frame.
+
+```{r}
+# Import the users table from tweater: users
+users <- dbReadTable(con,"users")
+
+# Print users
+users
+```
+Import all tables
+Next to the users, we're also interested in the tweats and comments tables. However, separate dbReadTable() calls for each and every one of the tables in your database would mean a lot of code duplication. Remember about the lapply() function? You can use it again here! A connection is already coded for you, as well as a vector table_names, containing the names of all the tables in the database.
+
+Instructions
+100 XP
+Finish the lapply() function to import the users, tweats and comments tables in a single call. The result, a list of data frames, will be stored in the variable tables.
+Print tables to check if you got it right.
+
+```{r}
+# Get table names
+table_names <- dbListTables(con)
+
+# Import all tables
+tables <- lapply(table_names, dbReadTable, conn = con)
+
+# Print out tables
+tables
+```
+
+
+
+Query tweater (1)
+In your life as a data scientist, you'll often be working with huge databases that contain tables with millions of rows. If you want to do some analyses on this data, it's possible that you only need a fraction of this data. In this case, it's a good idea to send SQL queries to your database, and only import the data you actually need into R.
+
+dbGetQuery() is what you need. As usual, you first pass the connection object to it. The second argument is an SQL query in the form of a character string. This example selects the age variable from the people dataset where gender equals "male":
+
+dbGetQuery(con, "SELECT age FROM people WHERE gender = 'male'")
+A connection to the tweater database has already been coded for you.
+
+Instructions
+100 XP
+Instructions
+100 XP
+Use dbGetQuery() to create a data frame, elisabeth, that selects the tweat_id column from the comments table where elisabeth is the commenter, her user_id is 1
+Print out elisabeth so you can see if you queried the database correctly.
+
+
+```{r}
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Import tweat_id column of comments where user_id is 1: elisabeth
+
+elisabeth <- dbGetQuery(con,"SELECT tweat_id FROM comments WHERE user_id = 1")
+
+# Print elisabeth
+elisabeth
+```
+
+Query tweater (2)
+Apart from checking equality, you can also check for less than and greater than relationships, with < and >, just like in R.
+
+con, a connection to the tweater database, is again available.
+
+Instructions
+100 XP
+Create a data frame, latest, that selects the post column from the tweats table observations where the date is higher than '2015-09-21'.
+Print out latest.
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Import post column of tweats where date is higher than '2015-09-21': latest
+latest <- dbGetQuery(con,"SELECT post FROM tweats WHERE date > '2015-09-21'")
+
+# Print latest
+latest
+```
+
+Query tweater (3)
+Suppose that you have a people table, with a bunch of information. This time, you want to find out the age and country of married males. Provided that there is a married column that's 1 when the person in question is married, the following query would work.
+
+SELECT age, country
+  FROM people
+    WHERE gender = "male" AND married = 1
+Can you use a similar approach for a more specialized query on the tweater database?
+
+Instructions
+100 XP
+Create an R data frame, specific, that selects the message column from the comments table where the tweat_id is 77 and the user_id is greater than 4.
+Print specific.
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Create data frame specific
+
+specific <- dbGetQuery(con,"SELECT message FROM comments WHERE tweat_id = 77 AND user_id >4")
+
+# Print specific
+specific
+```
+
+Query tweater (4)
+There are also dedicated SQL functions that you can use in the WHERE clause of an SQL query. For example, CHAR_LENGTH() returns the number of characters in a string.
+
+Instructions
+100 XP
+Create a data frame, short, that selects the id and name columns from the users table where the number of characters in the name is strictly less than 5.
+Print short.
+
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Create data frame short
+short <- dbGetQuery(con,"SELECT id,name FROM users WHERE CHAR_LENGTH(name) < 5")
+
+# Print short
+short
+
+
+dbDisconnect(con)
+```
+
+Join the query madness!
+Of course, SQL does not stop with the the three keywords SELECT, FROM and WHERE. Another very often used keyword is JOIN, and more specifically INNER JOIN. Take this call for example:
+
+SELECT name, post
+  FROM users INNER JOIN tweats on users.id = user_id
+    WHERE date > "2015-09-19"
+Here, the users table is joined with the tweats table. This is possible because the id column in the users table corresponds to the user_id column in the tweats table. Also notice how name, from the users table, and post and date, from the tweats table, can be referenced to without problems.
+
+Can you predict the outcome of the following query?
+
+SELECT post, message
+  FROM tweats INNER JOIN comments on tweats.id = tweat_id
+    WHERE tweat_id = 77
+A connection to the tweater database is already available as con; feel free to experiment!
+
+
+
+```{r}
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+dbGetQuery(con,"SELECT name, post
+  FROM users INNER JOIN tweats on users.id = user_id
+    WHERE date > '2015-09-19'")
+
+
+
+dbGetQuery(con,"SELECT post, message
+  FROM tweats INNER JOIN comments on tweats.id = tweat_id
+    WHERE tweat_id = 77")
+
+dbDisconnect(con)
+```
+
+
+Exercise
+Send - Fetch - Clear
+You've used dbGetQuery() multiple times now. This is a virtual function from the DBI package, but is actually implemented by the RMySQL package. Behind the scenes, the following steps are performed:
+
+Sending the specified query with dbSendQuery();
+Fetching the result of executing the query on the database with dbFetch();
+Clearing the result with dbClearResult().
+Let's not use dbGetQuery() this time and implement the steps above. This is tedious to write, but it gives you the ability to fetch the query's result in chunks rather than all at once. You can do this by specifying the n argument inside dbFetch().
+
+Instructions
+100 XP
+Inspect the dbSendQuery() call that has already been coded for you. It selects the comments for the users with an id above 4.
+Use dbFetch() twice. In the first call, import only two records of the query result by setting the n argument to 2. In the second call, import all remaining queries (don't specify n). In both calls, simply print the resulting data frames.
+Clear res with dbClearResult().
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Send query to the database
+res <- dbSendQuery(con, "SELECT * FROM comments WHERE user_id > 4")
+
+# Use dbFetch() twice
+
+dbFetch(res,n = 2)
+
+dbFetch(res)
+
+dbClearResult(res)
+```
+
+
+Exercise
+Be polite and ...
+Every time you connect to a database using dbConnect(), you're creating a new connection to the database you're referencing. RMySQL automatically specifies a maximum of open connections and closes some of the connections for you, but still: it's always polite to manually disconnect from the database afterwards. You do this with the dbDisconnect() function.
+
+The code that connects you to the database is already available, can you finish the script?
+
+Instructions
+100 XP
+Using the technique you prefer, build a data frame long_tweats. It selects the post and date columns from the observations in tweats where the character length of the post variable exceeds 40.
+Print long_tweats.
+Disconnect from the database by using dbDisconnect().
+
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Create the data frame  long_tweats
+long_tweats <- dbGetQuery(con,"SELECT post,date FROM tweats WHERE CHAR_LENGTH(post) > 40")
+
+# Print long_tweats
+print(long_tweats)
+
+# Disconnect from the database
+dbDisconnect(con)
+```
+
+## =============================== Importando datos desde el internet
+
+Exercise
+Import flat files from the web
+In the video, you saw that the utils functions to import flat file data, such as read.csv() and read.delim(), are capable of automatically importing from URLs that point to flat files on the web.
+
+You must be wondering whether Hadley Wickham's alternative package, readr, is equally potent. Well, figure it out in this exercise! The URLs for both a .csv file as well as a .delim file are already coded for you. It's up to you to actually import the data. If it works, that is…
+
+Instructions
+100 XP
+Instructions
+100 XP
+Load the readr package. It's already installed on DataCamp's servers.
+Use url_csv to read in the .csv file it is pointing to. Use the read_csv() function. The .csv contains column names in the first row. Save the resulting data frame as pools.
+Similarly, use url_delim to read in the online .txt file. Use the read_tsv() function and store the result as potatoes.
+Print pools and potatoes. Looks correct?
+
+
+```{r}
+# Load the readr package
+
+library(readr)
+# Import the csv file: pools
+url_csv <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/swimming_pools.csv"
+
+
+# Import the txt file: potatoes
+url_delim <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/potatoes.txt"
+
+
+# Print pools and potatoes
+
+read_csv(url_csv)
+
+read_tsv(url_delim)
+```
+Exercise
+Secure importing
+In the previous exercises, you have been working with URLs that all start with http://. There is, however, a safer alternative to HTTP, namely HTTPS, which stands for HypterText Transfer Protocol Secure. Just remember this: HTTPS is relatively safe, HTTP is not.
+
+Luckily for us, you can use the standard importing functions with https:// connections since R version 3.2.2.
+
+Instructions
+100 XP
+Instructions
+100 XP
+Take a look at the URL in url_csv. It uses a secure connection, https://.
+Use read.csv() to import the file at url_csv. The .csv file it is referring to contains column names in the first row. Call it pools1.
+Load the readr package. It's already installed on DataCamp's servers.
+Use read_csv() to read in the same .csv file in url_csv. Call it pools2.
+Print out the structure of pools1 and pools2. Looks like the importing went equally well as with a normal http connection!
+
+```{r}
+# https URL to the swimming_pools csv file.
+url_csv <- "https://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/swimming_pools.csv"
+
+# Import the file using read.csv(): pools1
+
+pools1 <- read.csv(url_csv)
+
+# Load the readr package
+
+library(readr)
+
+# Import the file using read_csv(): pools2
+
+pools2 <- read_csv(url_csv)
+
+# Print the structure of pools1 and pools2
+str(pools1)
+str(pools2)
+```
+Exercise
+Import Excel files from the web
+When you learned about gdata, it was already mentioned that gdata can handle .xls files that are on the internet. readxl can't, at least not yet. The URL with which you'll be working is already available in the sample code. You will import it once using gdata and once with the readxl package via a workaround.
+
+Instructions
+100 XP
+Load the readxl and gdata packages. They are already installed on DataCamp's servers.
+Import the .xls file located at the URL url_xls using read.xls() from gdata. Store the resulting data frame as excel_gdata.
+You can not use read_excel() directly with a URL. Complete the following instructions to work around this problem:
+Use download.file() to download the .xls file behind the URL and store it locally as "local_latitude.xls".
+Call read_excel() to import the local file, "local_latitude.xls". Name the resulting data frame excel_readxl.
+
+```{r}
+# Load the readxl and gdata package
+library(readxl)
+library(gdata)
+
+
+# Specification of url: url_xls
+url_xls <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/latitude.xls"
+
+# Import the .xls file with gdata: excel_gdata
+excel_gdata <- read.xls(url_xls)
+
+# Download file behind URL, name it local_latitude.xls
+download.file(url_xls,"local_latitude.xls")
+
+# Import the local .xls file with readxl: excel_readxl
+read_excel("local_latitude.xls")
+```
+
+Exercise
+Downloading any file, secure or not
+In the previous exercise you've seen how you can read excel files on the web using the read_excel package by first downloading the file with the download.file() function.
+
+There's more: with download.file() you can download any kind of file from the web, using HTTP and HTTPS: images, executable files, but also .RData files. An RData file is very efficient format to store R data.
+
+You can load data from an RData file using the load() function, but this function does not accept a URL string as an argument. In this exercise, you'll first download the RData file securely, and then import the local data file.
+
+Instructions
+100 XP
+Take a look at the URL in url_rdata. It uses a secure connection, https://. This URL points to an RData file containing a data frame with some metrics on different kinds of wine.
+Download the file at url_rdata using download.file(). Call the file "wine_local.RData" in your working directory.
+Load the file you created, wine_local.RData, using the load() function. It takes one argument, the path to the file, which is just the filename in our case. After running this command, the variable wine will automatically be available in your workspace.
+Print out the summary() of the wine dataset.
+
+```{r}
+# https URL to the wine RData file.
+url_rdata <- "https://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/wine.RData"
+
+# Download the wine file to your working directory
+download.file(url_rdata,"wine_local.RData")
+
+# Load the wine data into your workspace using load()
+load("wine_local.RData")
+
+# Print out the summary of the wine data
+summary(wine)
+```
+
+Exercise
+HTTP? httr! (1)
+Downloading a file from the Internet means sending a GET request and receiving the file you asked for. Internally, all the previously discussed functions use a GET request to download files.
+
+httr provides a convenient function, GET() to execute this GET request. The result is a response object, that provides easy access to the status code, content-type and, of course, the actual content.
+
+You can extract the content from the request using the content() function. At the time of writing, there are three ways to retrieve this content: as a raw object, as a character vector, or an R object, such as a list. If you don't tell content() how to retrieve the content through the as argument, it'll try its best to figure out which type is most appropriate based on the content-type.
+
+Instructions
+100 XP
+Instructions
+100 XP
+Load the httr package. It's already installed on DataCamp's servers.
+Use GET() to get the URL stored in url. Store the result of this GET() call as resp.
+Print the resp object. What information does it contain?
+Get the content of resp using content() and set the as argument to "raw". Assign the resulting vector to raw_content.
+Print the first values in raw_content with head().
+
+```{r}
+# Load the httr package
+library(httr)
+
+# Get the url, save response to resp
+url <- "http://www.example.com/"
+
+
+# Print resp
+resp <- GET(url)
+
+# Get the raw content of resp: raw_content
+resp
+
+# Print the head of raw_content
+raw_content <- content(resp,as = "raw")
+
+head(raw_content)
+```
+
+
+Exercise
+HTTP? httr! (2)
+Web content does not limit itself to HTML pages and files stored on remote servers such as DataCamp's Amazon S3 instances. There are many other data formats out there. A very common one is JSON. This format is very often used by so-called Web APIs, interfaces to web servers with which you as a client can communicate to get or store information in more complicated ways.
+
+You'll learn about Web APIs and JSON in the video and exercises that follow, but some experimentation never hurts, does it?
+
+Instructions
+100 XP
+Use GET() to get the url that has already been specified in the sample code. Store the response as resp.
+Print resp. What is the content-type?
+Use content() to get the content of resp. Set the as argument to "text". Simply print out the result. What do you see?
+Use content() to get the content of resp, but this time do not specify a second argument. R figures out automatically that you're dealing with a JSON, and converts the JSON to a named R list.
+
+```{r}
+# httr is already loaded
+
+# Get the url
+url <- "http://www.omdbapi.com/?apikey=72bc447a&t=Annie+Hall&y=&plot=short&r=json"
+
+
+# Print resp
+resp <- GET(url)
+resp
+
+# Print content of resp as text
+content(resp,as = "text")
+
+# Print content of resp
+content(resp)
+```
+
+From JSON to R
+In the simplest setting, fromJSON() can convert character strings that represent JSON data into a nicely structured R list. Give it a try!
+
+Instructions
+100 XP
+Load the jsonlite package. It's already installed on DataCamp's servers.
+wine_json represents a JSON. Use fromJSON() to convert it to a list, named wine.
+Display the structure of wine
+
+```{r}
+# Load the jsonlite package
+library(jsonlite)
+
+# wine_json is a JSON
+wine_json <- '{"name":"Chateau Migraine", "year":1997, "alcohol_pct":12.4, "color":"red", "awarded":false}'
+
+# Convert wine_json into a list: wine
+
+wine <- fromJSON(wine_json)
+# Print structure of wine
+str(wine)
+```
+
+
+Exercise
+Quandl API
+As Filip showed in the video, fromJSON() also works if you pass a URL as a character string or the path to a local file that contains JSON data. Let's try this out on the Quandl API, where you can fetch all sorts of financial and economical data.
+
+Instructions
+100 XP
+quandl_url represents a URL. Use fromJSON() directly on this URL and store the result in quandl_data.
+Display the structure of quandl_data.
+
+
+```{r}
+# jsonlite is preloaded
+
+# Definition of quandl_url
+quandl_url <- "https://www.quandl.com/api/v3/datasets/WIKI/FB/data.json?auth_token=i83asDsiWUUyfoypkgMz"
+
+# Import Quandl data: quandl_data
+quandl_data <- fromJSON(quandl_url)
+
+# Print structure of quandl_data
+str(quandl_data)
+```
+
+
