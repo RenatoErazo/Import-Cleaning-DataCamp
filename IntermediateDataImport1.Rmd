@@ -586,3 +586,111 @@ str(quandl_data)
 ```
 
 
+Exercise
+OMDb API
+In the video, you saw how easy it is to interact with an API once you know how to formulate requests. You also saw how to fetch all information on Rain Man from OMDb. Simply perform a GET() call, and next ask for the contents with the content() function. This content() function, which is part of the httr package, uses jsonlite behind the scenes to import the JSON data into R.
+
+However, by now you also know that jsonlite can handle URLs itself. Simply passing the request URL to fromJSON() will get your data into R. In this exercise, you will be using this technique to compare the release year of two movies in the Open Movie Database.
+
+Instructions
+100 XP
+Instructions
+100 XP
+Two URLs are included in the sample code, as well as a fromJSON() call to build sw4. Add a similar call to build sw3.
+Print out the element named Title of both sw4 and sw3. You can use the $ operator. What movies are we dealing with here?
+Write an expression that evaluates to TRUE if sw4 was released later than sw3. This information is stored in the Year element of the named lists.
+
+```{r}
+# The package jsonlite is already loaded
+library(jsonlite)
+# Definition of the URLs
+url_sw4 <- "http://www.omdbapi.com/?apikey=72bc447a&i=tt0076759&r=json"
+url_sw3 <- "http://www.omdbapi.com/?apikey=72bc447a&i=tt0121766&r=json"
+
+# Import two URLs with fromJSON(): sw4 and sw3
+sw4 <- fromJSON(url_sw4)
+sw3 <- fromJSON(url_sw3)
+
+
+# Print out the Title element of both lists
+sw3$Title
+sw4$Title
+
+# Is the release year of sw4 later than sw3?
+sw4$Year > sw3$Year
+```
+Exercise
+JSON practice (1)
+JSON is built on two structures: objects and arrays. To help you experiment with these, two JSON strings are included in the sample code. It's up to you to change them appropriately and then call jsonlite's fromJSON() function on them each time.
+
+Instructions
+100 XP
+Change the assignment of json1 such that the R vector after conversion contains the numbers 1 up to 6, in ascending order. Next, call fromJSON() on json1.
+Adapt the code for json2 such that it's converted to a named list with two elements: a, containing the numbers 1, 2 and 3 and b, containing the numbers 4, 5 and 6. Next, call fromJSON() on json2.
+
+```{r}
+ # jsonlite is already loaded
+library(jsonlite)
+
+# Challenge 1
+json1 <- '[1, 2, 3, 4, 5, 6]'
+fromJSON(json1)
+
+# Challenge 2
+json2 <- '{"a": [1, 2, 3], "b": [4, 5, 6]}'
+fromJSON(json2)
+
+```
+
+
+Exercise
+JSON practice (2)
+We prepared two more JSON strings in the sample code. Can you change them and call jsonlite's fromJSON() function on them, similar to the previous exercise?
+
+Instructions
+100 XP
+Remove characters from json1 to build a 2 by 2 matrix containing only 1, 2, 3 and 4. Call fromJSON() on json1.
+Add characters to json2 such that the data frame in which the json is converted contains an additional observation in the last row. For this observations, a equals 5 and b equals 6. Call fromJSON() one last time, on json2.
+
+
+```{r}
+# jsonlite is already loaded
+library(jsonlite)
+# Challenge 1
+json1 <- fromJSON('[[1, 2], [3, 4], [5, 6]]')
+json1 <- json1[-3,]
+json1
+
+# Challenge 2
+json2 <- fromJSON('[{"a": 1, "b": 2}, {"a": 3, "b": 4},{"a": 5, "b": 6}]')
+json2
+```
+Exercise
+toJSON()
+Apart from converting JSON to R with fromJSON(), you can also use toJSON() to convert R data to a JSON format. In its most basic use, you simply pass this function an R object to convert to a JSON. The result is an R object of the class json, which is basically a character string representing that JSON.
+
+For this exercise, you will be working with a .csv file containing information on the amount of desalinated water that is produced around the world. As you'll see, it contains a lot of missing values. This data can be found on the URL that is specified in the sample code.
+
+Instructions
+100 XP
+Use a function of the utils package to import the .csv file directly from the URL specified in url_csv. Save the resulting data frame as water. Make sure that strings are not imported as factors.
+Convert the data frame water to a JSON. Call the resulting object water_json.
+Print out water_json.
+
+```{r}
+# jsonlite is already loaded
+
+# URL pointing to the .csv file
+url_csv <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/water.csv"
+
+# Import the .csv file located at url_csv
+
+water <- read.csv(url_csv,stringsAsFactor = FALSE)
+
+# Convert the data file according to the requirements
+water_json <- toJSON(water)
+
+# Print out water_json
+water_json
+```
+
