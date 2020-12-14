@@ -1,0 +1,103 @@
+---
+title: "ImportFromSoftwareSta"
+author: "Renato Erazo"
+date: "8/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## haven
+
+```{r}
+install.packages("haven")
+library(haven)
+```
+
+
+```{r}
+library(haven)
+baseDatos <- read_sav(file.path("./01ImportData","datasets","vivienda.sav"))
+```
+
+
+Transformar los datos de opciones de spss a datos de texto en lascolumnas
+
+```{r}
+baseDatos$Provincia <- as.character(as_factor(baseDatos$Provincia))
+baseDatos$Regional <- as.character(as_factor(baseDatos$Regional))
+baseDatos$Área <- as.character(as_factor(baseDatos$Área))
+baseDatos$Vivienda <- as.character(as_factor(baseDatos$Vivienda))
+baseDatos$VI02 <- as.character(as_factor(baseDatos$VI02))
+baseDatos$VI03 <- as.character(as_factor(baseDatos$VI03))
+baseDatos$VI04 <- as.character(as_factor(baseDatos$VI04))
+
+```
+
+Exercise
+Import STATA data with haven
+Next up are STATA data files; you can use read_dta() for these.
+
+When inspecting the result of the read_dta() call, you will notice that one column will be imported as a labelled vector, an R equivalent for the common data structure in other statistical environments. In order to effectively continue working on the data in R, it's best to change this data into a standard R class. To convert a variable of the class labelled to a factor, you'll need haven's as_factor() function.
+
+In this exercise, you will work with data on yearly import and export numbers of sugar, both in USD and in weight. The data can be found at: http://assets.datacamp.com/production/course_1478/datasets/trade.dta
+
+Instructions
+100 XP
+Import the data file directly from the URL using read_dta(), and store it as sugar.
+Print out the structure of sugar. The Date column has class labelled.
+Convert the values in the Date column of sugar to dates, using as.Date(as_factor(___)).
+Print out the structure of sugar once more. Looks better now?
+
+
+```{r}
+# haven is already loaded
+library(haven)
+# Import the data from the URL: sugar
+
+sugar <- read_dta("http://assets.datacamp.com/production/course_1478/datasets/trade.dta")
+# Structure of sugar
+str(sugar)
+
+# Convert values in Date column to dates
+sugar$Date <- as.Date(as_factor(sugar$Date))
+
+
+# Structure of sugar again
+str(sugar)
+```
+
+
+Exercise
+Import SPSS data with haven
+The haven package can also import data files from SPSS. Again, importing the data is pretty straightforward. Depending on the SPSS data file you're working with, you'll need either read_sav() - for .sav files - or read_por() - for .por files.
+
+In this exercise, you will work with data on four of the Big Five personality traits for 434 persons (Source: University of Bath). The Big Five is a psychological concept including, originally, five dimensions of personality to classify human personality. The SPSS dataset is called person.sav and is available in your working directory.
+
+Instructions
+100 XP
+Instructions
+100 XP
+Use read_sav() to import the SPSS data in "person.sav". Name the imported data frame traits.
+traits contains several missing values, or NAs. Run summary() on it to find out how many NAs are contained in each variable.
+Print out a subset of those individuals that scored high on Extroversion and on Agreeableness, i.e. scoring higher than 40 on each of these two categories. You can use subset() for this.
+
+
+```{r}
+# haven is already loaded
+library(haven)
+# Import person.sav: traits
+traits <- read_sav(file.path("./01ImportData","datasets","person.sav"))
+
+# Summarize traits
+summary(traits)
+
+# Print out a subset
+subset(traits,Extroversion > 40 & Agreeableness > 40)
+```
+
+
+
+
