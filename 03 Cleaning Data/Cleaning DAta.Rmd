@@ -2,7 +2,10 @@
 title: "Cleaning Data"
 author: "Renato Erazo"
 date: "14/12/2020"
-output: html_document
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -112,7 +115,7 @@ bike_share_rides <- bike_share_rides %>%
   # Remove 'minutes' from duration: duration_trimmed
   mutate(duration_trimmed = str_remove(duration,"minutes"),
          # Convert duration_trimmed to numeric: duration_mins
-         duration_mins = as.numeric(duration_trimmed))
+         duration_min = as.numeric(duration_trimmed))
 
 # Glimpse at bike_share_rides
 glimpse(bike_share_rides)
@@ -149,6 +152,201 @@ breaks <- c(min(bike_share_rides$duration_mins), 0, 1440, max(bike_share_rides$d
 # Create a histogram of duration_min
 ggplot(bike_share_rides, aes(duration_mins)) +
   geom_histogram(breaks = breaks)
+```
+
+Exercise
+Ride duration constraints
+
+Values that are out of range can throw off an analysis, so it's important to catch them early on. In this exercise, you'll be examining the duration_min column more closely. Bikes are not allowed to be kept out for more than 24 hours, or 1440 minutes at a time, but issues with some of the bikes caused inaccurate recording of the time they were returned.
+
+In this exercise, you'll replace erroneous data with the range limit (1440 minutes), however, you could just as easily replace these values with NAs.
+
+dplyr, assertive, and ggplot2 are loaded and bike_share_rides is available.
+Instructions 2/2
+50 XP
+
+    2
+
+    Replace the values of duration_min that are greater than 1440 minutes (24 hours) with 1440. Add this to bike_share_rides as a new column called duration_min_const.
+    Assert that all values of duration_min_const are between 0 and 1440.
+
+```{r}
+library(dplyr)
+library(assertive)
+library(ggplot2)
+# Create breaks
+breaks <- c(min(bike_share_rides$duration_min), 0, 1440, max(bike_share_rides$duration_min))
+
+# Create a histogram of duration_min
+ggplot(bike_share_rides, aes(duration_min)) +
+  geom_histogram(breaks = breaks)
+
+# duration_min_const: replace vals of duration_min > 1440 with 1440
+bike_share_rides <- bike_share_rides %>%
+  mutate(duration_min_const = replace(duration_min, duration_min > 1440, 1440))
+
+# Make sure all values of duration_min_const are between 0 and 1440
+assert_all_are_in_closed_range(bike_share_rides$duration_min_const, lower = 0, upper = 1440)
+```
+
+
+Exercise
+Back to the future
+
+Something has gone wrong and it looks like you have data with dates from the future, which is way outside of the date range you expected to be working with. To fix this, you'll need to remove any rides from the dataset that have a date in the future. Before you can do this, the date column needs to be converted from a character to a Date. Having these as Date objects will make it much easier to figure out which rides are from the future, since R makes it easy to check if one Date object is before (<) or after (>) another.
+
+dplyr and assertive are loaded and bike_share_rides is available.
+Instructions
+100 XP
+
+    Convert the date column of bike_share_rides from character to the Date data type.
+    Assert that all values in the date column happened sometime in the past and not in the future.
+    Filter bike_share_rides to get only the rides from the past or today, and save this as bike_share_rides_past.
+    Assert that the dates in bike_share_rides_past occurred only in the past.
+
+
+```{r}
+library(lubridate)
+# Convert date to Date type
+bike_share_rides <- bike_share_rides %>%
+  mutate(date = as.Date(date))
+
+# Make sure all dates are in the past
+assert_all_are_in_past(bike_share_rides$date)
+
+
+# Filter for rides that occurred before or on today's date
+bike_share_rides_past <- bike_share_rides %>%
+  filter(date <= today())
+
+# Make sure all dates from bike_share_rides_past are in the past
+assert_all_are_in_past(bike_share_rides_past$date)
+```
+
+Exercise
+Full duplicates
+
+You've been notified that an update has been made to the bike sharing data pipeline to make it more efficient, but that duplicates are more likely to be generated as a result. To make sure that you can continue using the same scripts to run your weekly analyses about ride statistics, you'll need to ensure that any duplicates in the dataset are removed first.
+
+When multiple rows of a data frame share the same values for all columns, they're full duplicates of each other. Removing duplicates like this is important, since having the same value repeated multiple times can alter summary statistics like the mean and median. Each ride, including its ride_id should be unique.
+
+dplyr is loaded and bike_share_rides is available.
+Instructions
+100 XP
+
+    Get the total number of full duplicates in bike_share_rides.
+    Remove all full duplicates from bike_share_rides and save the new data frame as bike_share_rides_unique.
+    Get the total number of full duplicates in the new bike_share_rides_unique data frame.
+
+```{r}
+# Count the number of full duplicates
+sum(duplicated(bike_share_rides))
+
+# Remove duplicates
+bike_share_rides_unique <- distinct(bike_share_rides)
+
+# Count the full duplicates in bike_share_rides_unique
+sum(duplicated(bike_share_rides_unique))
+```
+Exercise
+Removing partial duplicates
+
+Now that you've identified and removed the full duplicates, it's time to check for partial duplicates. Partial duplicates are a bit tricker to deal with than full duplicates. In this exercise, you'll first identify any partial duplicates and then practice the most common technique to deal with them, which involves dropping all partial duplicates, keeping only the first.
+
+dplyr is loaded and bike_share_rides is available.
+Instructions 1/3
+35 XP
+
+    1
+    2
+    3
+
+    Count the number of occurrences of each ride_id.
+    Filter for ride_ids that occur multiple times.
+```{r}
+# Find duplicated ride_ids
+bike_share_rides %>% 
+  # Count the number of occurrences of each ride_id
+  count(ride_id) %>% 
+  # Filter for rows with a count > 1
+  filter(n > 1)
+```
+Exercise
+Removing partial duplicates
+
+Now that you've identified and removed the full duplicates, it's time to check for partial duplicates. Partial duplicates are a bit tricker to deal with than full duplicates. In this exercise, you'll first identify any partial duplicates and then practice the most common technique to deal with them, which involves dropping all partial duplicates, keeping only the first.
+
+dplyr is loaded and bike_share_rides is available.
+Instructions 2/3
+35 XP
+
+    2
+    3
+
+    Remove full and partial duplicates from bike_share_rides based on ride_id only, keeping all columns.
+    Store this as bike_share_rides_unique.
+
+```{r}
+# Find duplicated ride_ids
+bike_share_rides %>% 
+  count(ride_id) %>% 
+  filter(n > 1)
+
+# Remove full and partial duplicates
+bike_share_rides_unique <- bike_share_rides %>%
+  # Only based on ride_id instead of all cols
+   distinct(ride_id,.keep_all = TRUE)
+```
+
+Removing partial duplicates
+
+Now that you've identified and removed the full duplicates, it's time to check for partial duplicates. Partial duplicates are a bit tricker to deal with than full duplicates. In this exercise, you'll first identify any partial duplicates and then practice the most common technique to deal with them, which involves dropping all partial duplicates, keeping only the first.
+
+dplyr is loaded and bike_share_rides is available.
+
+
+```{r}
+# Find duplicated ride_ids
+bike_share_rides %>% 
+  count(ride_id) %>% 
+  filter(n > 1)
+
+# Remove full and partial duplicates
+bike_share_rides_unique <- bike_share_rides %>%
+  # Only based on ride_id instead of all cols
+  distinct(ride_id, .keep_all = TRUE)
+
+# Find duplicated ride_ids in bike_share_rides_unique
+bike_share_rides_unique %>%
+  # Count the number of occurrences of each ride_id
+  count(ride_id) %>%
+  # Filter for rows with a count > 1
+  filter(n>1)
+```
+Exercise
+Aggregating partial duplicates
+
+Another way of handling partial duplicates is to compute a summary statistic of the values that differ between partial duplicates, such as mean, median, maximum, or minimum. This can come in handy when you're not sure how your data was collected and want an average, or if based on domain knowledge, you'd rather have too high of an estimate than too low of an estimate (or vice versa).
+
+dplyr is loaded and bike_share_rides is available.
+Instructions
+100 XP
+
+    Group bike_share_rides by ride_id and date.
+    Add a column called duration_min_avg that contains the mean ride duration for the row's ride_id and date.
+    Remove duplicates based on ride_id and date, keeping all columns of the data frame.
+    Remove the duration_min column.
+
+```{r}
+bike_share_rides %>%
+  # Group by ride_id and date
+  group_by(ride_id,date) %>%
+  # Add duration_min_avg column
+  mutate(duration_min_avg = mean(duration_min) ) %>%
+  # Remove duplicates based on ride_id and date, keep all cols
+  distinct(ride_id,date,.keep_all=TRUE) %>%
+  # Remove duration_min column
+  select(-duration_min)
 ```
 
 
