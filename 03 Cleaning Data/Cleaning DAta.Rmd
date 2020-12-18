@@ -349,5 +349,16 @@ bike_share_rides %>%
   select(-duration_min)
 ```
 
+## ========================== Categorical and text data
+
+
+
+
+```{r}
+sfo_survey <- readRDS("sfo_survey_ch2_1.rds")
+library(dplyr)
+sfo_survey %>% count(dest_size)
+sfo_survey %>% count(cleanliness)
+```
 
 
