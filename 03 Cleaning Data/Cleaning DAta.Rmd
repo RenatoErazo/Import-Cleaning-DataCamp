@@ -361,4 +361,131 @@ sfo_survey %>% count(dest_size)
 sfo_survey %>% count(cleanliness)
 ```
 
+Exercise
+Correcting inconsistency
+
+Now that you've identified that dest_size has whitespace inconsistencies and cleanliness has capitalization inconsistencies, you'll use the new tools at your disposal to fix the inconsistent values in sfo_survey instead of removing the data points entirely, which could add bias to your dataset if more than 5% of the data points need to be dropped.
+
+dplyr and stringr are loaded and sfo_survey is available.
+Instructions
+100 XP
+
+    Add a column to sfo_survey called dest_size_trimmed that contains the values in the dest_size column with all leading and trailing whitespace removed.
+    Add another column called cleanliness_lower that contains the values in the cleanliness column converted to all lowercase.
+    Count the number of occurrences of each category in dest_size_trimmed.
+    Count the number of occurrences of each category in cleanliness_lower.
+
+```{r}
+library(dplyr)
+library(stringr)
+# Add new columns to sfo_survey
+sfo_survey <- sfo_survey %>%
+  # dest_size_trimmed: dest_size without whitespace
+  mutate(dest_size_trimmed = str_trim(dest_size),
+         # cleanliness_lower: cleanliness converted to lowercase
+         cleanliness_lower = str_to_lower(cleanliness))
+
+# Count values of dest_size_trimmed
+sfo_survey %>%
+  count(dest_size_trimmed)
+
+# Count values of cleanliness_lower
+sfo_survey %>%
+  count(cleanliness_lower)
+```
+
+Exercise
+Collapsing categories
+
+One of the tablets that participants filled out the sfo_survey on was not properly configured, allowing the response for dest_region to be free text instead of a dropdown menu. This resulted in some inconsistencies in the dest_region variable that you'll need to correct in this exercise to ensure that the numbers you report to your boss are as accurate as possible.
+
+dplyr and forcats are loaded and sfo_survey is available.
+Instructions 1/3
+0 XP
+
+    1
+    2
+    3
+
+    Count the categories of dest_region.
+
+
+```{r}
+# Count categories of dest_region
+sfo_survey %>%
+  count(dest_region)
+```
+
+Exercise
+Collapsing categories
+
+One of the tablets that participants filled out the sfo_survey on was not properly configured, allowing the response for dest_region to be free text instead of a dropdown menu. This resulted in some inconsistencies in the dest_region variable that you'll need to correct in this exercise to ensure that the numbers you report to your boss are as accurate as possible.
+
+dplyr and forcats are loaded and sfo_survey is available.
+Instructions 3/3
+100 XP
+
+    3
+
+    Create a vector called europe_categories containing the three values of dest_region that need to be collapsed.
+    Add a new column to sfo_survey called dest_region_collapsed that contains the values from the dest_region column, except the categories stored in europe_categories should be collapsed to Europe.
+    Count the categories of dest_region_collapsed
+
+```{r}
+library(dplyr)
+library(forcats)
+# Count categories of dest_region
+sfo_survey %>%
+  count(dest_region)
+
+# Categories to map to Europe
+europe_categories <- c("EU", "eur", "Europ")
+
+# Add a new col dest_region_collapsed
+sfo_survey %>%
+  # Map all categories in europe_categories to Europe
+  mutate(dest_region_collapsed = fct_collapse(dest_region, Europe = europe_categories)) %>%
+  # Count categories of dest_region_collapsed
+  count(dest_region_collapsed)
+```
+## ==== Text data inconsistences
+
+Exercise
+Detecting inconsistent text data
+
+You've recently received some news that the customer support team wants to ask the SFO survey participants some follow-up questions. However, the auto-dialer that the call center uses isn't able to parse all of the phone numbers since they're all in different formats. After some investigation, you found that some phone numbers are written with hyphens (-) and some are written with parentheses ((,)). In this exercise, you'll figure out which phone numbers have these issues so that you know which ones need fixing.
+
+dplyr and stringr are loaded, and sfo_survey is available.
+Instructions 1/2
+50 XP
+
+    1
+        Filter for rows with phone numbers that contain "-"s.
+```{r}
+library(stringr)
+library(dplyr)
+# Filter for rows with "-" in the phone column
+sfo_survey %>%
+  filter(str_detect(phone,"-"))
+```
+
+## ================ Completeness
+
+Librería para detectar archivos con valores perdidos (missing)
+
+
+
+```{r}
+install.packages("visdat")
+```
+
+Verificar los na's 
+
+
+```{r}
+library(visdat)
+sum(is.na(airquality))
+vis_miss(airquality)
+```
+
 
