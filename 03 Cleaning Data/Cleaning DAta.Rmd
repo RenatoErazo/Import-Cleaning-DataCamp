@@ -631,6 +631,154 @@ zagat %>%
 10 cafe'50s                  los angeles  los angeles
 
 
+Exercise
+Pair blocking
+
+Zagat and Fodor's are both companies that gather restaurant reviews. The zagat and fodors datasets both contain information about various restaurants, including addresses, phone numbers, and cuisine types. Some restaurants appear in both datasets, but don't necessarily have the same exact name or phone number written down. In this chapter, you'll work towards figuring out which restaurants appear in both datasets.
+
+The first step towards this goal is to generate pairs of records so that you can compare them. In this exercise, you'll first generate all possible pairs, and then use your newly-cleaned city column as a blocking variable.
+
+zagat and fodors are available.
+Instructions 2/2
+50 XP
+
+        Load the reclin package.
+        Generate all possible pairs of records between the zagat and fodors datasets.
+    2
+        Use pair blocking to generate only pairs that have matching values in the city column.
+
+```{r}
+install.packages("reclin")
+```
+        
+        
+
+```{r}
+fodors <- readRDS("fodors.rds")
+
+# Load reclin
+library(reclin)
+
+# Generate pairs with same city
+pair_blocking(zagat,fodors,blocking_var = "city")
+```
+
+Exercise
+Comparing pairs
+
+Now that you've generated the pairs of restaurants, it's time to compare them. You can easily customize how you perform your comparisons using the by and default_comparator arguments. There's no right answer as to what each should be set to, so in this exercise, you'll try a couple options out.
+
+dplyr and reclin are loaded and zagat and fodors are available.
+Instructions 1/2
+50 XP
+
+    1
+        Compare pairs by name using lcs() distance.
+
+```{r}
+# Generate pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs by name using lcs()
+  compare_pairs(by = "name",
+      default_comparator = lcs())
+```
+
+Exercise
+Comparing pairs
+
+Now that you've generated the pairs of restaurants, it's time to compare them. You can easily customize how you perform your comparisons using the by and default_comparator arguments. There's no right answer as to what each should be set to, so in this exercise, you'll try a couple options out.
+
+dplyr and reclin are loaded and zagat and fodors are available.
+Instructions 2/2
+50 XP
+
+        Compare pairs by name using lcs() distance.
+    2
+        Compare pairs by name, phone, and addr using jaro_winkler().
+
+
+```{r}
+# Generate pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs by name, phone, addr
+  compare_pairs(by = c("name","phone","addr"),default_comparator = jaro_winkler())
+```
+
+Exercise
+Putting it together
+
+During this chapter, you've cleaned up the city column of zagat using string similarity, as well as generated and compared pairs of restaurants from zagat and fodors. The end is near - all that's left to do is score and select pairs and link the data together, and you'll be able to begin your analysis in no time!
+
+reclin and dplyr are loaded and zagat and fodors are available.
+Instructions 1/3
+35 XP
+
+    1
+    2
+    3
+
+    Score the pairs of records probabilistically.
+
+
+```{r}
+# Create pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs
+  compare_pairs(by = "name", default_comparator = jaro_winkler()) %>%
+  # Score pairs
+  score_problink()
+```
+
+Exercise
+Putting it together
+
+During this chapter, you've cleaned up the city column of zagat using string similarity, as well as generated and compared pairs of restaurants from zagat and fodors. The end is near - all that's left to do is score and select pairs and link the data together, and you'll be able to begin your analysis in no time!
+
+reclin and dplyr are loaded and zagat and fodors are available.
+Instructions 2/3
+35 XP
+
+    2
+    3
+
+    Select the pairs that are considered matches.
+
+```{r}
+# Create pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs
+  compare_pairs(by = "name", default_comparator = jaro_winkler()) %>%
+  # Score pairs
+  score_problink() %>%
+  # Select pairs
+  select_n_to_m()
+```
+
+Exercise
+Putting it together
+
+During this chapter, you've cleaned up the city column of zagat using string similarity, as well as generated and compared pairs of restaurants from zagat and fodors. The end is near - all that's left to do is score and select pairs and link the data together, and you'll be able to begin your analysis in no time!
+
+reclin and dplyr are loaded and zagat and fodors are available.
+Instructions 3/3
+30 XP
+
+    3
+
+    Link the two data frames together.
+```{r}
+# Create pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs
+  compare_pairs(by = "name", default_comparator = jaro_winkler()) %>%
+  # Score pairs
+  score_problink() %>%
+  # Select pairs
+  select_n_to_m() %>%
+  # Link data 
+  link()
+```
+
 
 
 
