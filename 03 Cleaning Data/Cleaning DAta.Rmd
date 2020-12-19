@@ -488,4 +488,149 @@ sum(is.na(airquality))
 vis_miss(airquality)
 ```
 
+## ============================= 04 Record Linkage
+
+String distance
+
+```{r}
+install.packages("stringdist")
+```
+
+Distancia entre puffin y muffins
+
+```{r}
+library(stringdist)
+stringdist("puffin","muffins",method = "dl")
+```
+
+Exercise
+Small distance, small difference
+
+In the video exercise, you learned that there are multiple ways to calculate how similar or different two strings are. Now you'll practice using the stringdist package to compute string distances using various methods. It's important to be familiar with different methods, as some methods work better on certain datasets, while others work better on other datasets.
+
+The stringdist package has been loaded for you.
+Instructions 1/4
+25 XP
+
+    1
+    2
+    3
+    4
+
+    Calculate the Damerau-Levenshtein distance between "las angelos" and "los angeles".
+
+
+```{r}
+# Calculate Damerau-Levenshtein distance
+stringdist("Las angelos", "Los angeles", method = "dl")
+```
+
+Exercise
+Small distance, small difference
+
+In the video exercise, you learned that there are multiple ways to calculate how similar or different two strings are. Now you'll practice using the stringdist package to compute string distances using various methods. It's important to be familiar with different methods, as some methods work better on certain datasets, while others work better on other datasets.
+
+The stringdist package has been loaded for you.
+Instructions 2/4
+25 XP
+
+    2
+    3
+    4
+
+    Calculate the Longest Common Substring (LCS) distance between "las angelos" and "los angeles".
+
+
+```{r}
+# Calculate LCS distance
+stringdist("Las angelos", "Los angeles", method = "lcs")
+```
+
+Exercise
+Small distance, small difference
+
+In the video exercise, you learned that there are multiple ways to calculate how similar or different two strings are. Now you'll practice using the stringdist package to compute string distances using various methods. It's important to be familiar with different methods, as some methods work better on certain datasets, while others work better on other datasets.
+
+The stringdist package has been loaded for you.
+Instructions 3/4
+25 XP
+
+    3
+    4
+
+    Calculate the Jaccard distance between "las angelos" and "los angeles".
+```{r}
+# Calculate Jaccard distance
+stringdist("Las angelos", "Los angeles", method = "jaccard")
+```
+
+Leer zagat dataset
+
+```{r}
+zagat <- readRDS("zagat.rds")
+
+##crear dataframe cities
+
+cities <- data.frame(city_actual = c("new york","los angeles","atlanta","san francisco","las vegas"))
+
+```
+```{r}
+library(dplyr)
+# Count the number of each city variation
+
+zagat %>%
+  count(city)
+```
+
+Exercise
+Fixing typos with string distance
+
+In this chapter, one of the datasets you'll be working with, zagat, is a set of restaurants in New York, Los Angeles, Atlanta, San Francisco, and Las Vegas. The data is from Zagat, a company that collects restaurant reviews, and includes the restaurant names, addresses, phone numbers, as well as other restaurant information.
+
+The city column contains the name of the city that the restaurant is located in. However, there are a number of typos throughout the column. Your task is to map each city to one of the five correctly-spelled cities contained in the cities data frame.
+
+dplyr and fuzzyjoin are loaded, and zagat and cities are available.
+Instructions 2/2
+0 XP
+
+    2
+
+    Left join zagat and cities based on string distance using the city and city_actual columns.
+    Select the name, city, and city_actual columns.
+
+```{r}
+install.packages("fuzzyjoin")
+```
+
+```{r}
+library(fuzzyjoin)
+# Count the number of each city variation
+zagat %>%
+  count(city)
+
+# Join and look at results
+zagat %>%
+  # Left join based on stringdist using city and city_actual cols
+  stringdist_left_join(cities, by = c("city" = "city_actual")) %>%
+  # Select the name, city, and city_actual cols
+  select(name, city, city_actual)
+```
+
+# A tibble: 310 x 3
+   name                      city         city_actual
+   <chr>                     <chr>        <fct>      
+ 1 apple pan the             llos angeles los angeles
+ 2 asahi ramen               los angeles  los angeles
+ 3 baja fresh                los angeles  los angeles
+ 4 belvedere the             los angeles  los angeles
+ 5 benita's frites           lo angeles   los angeles
+ 6 bernard's                 los angeles  los angeles
+ 7 bistro 45                 lo angeles   los angeles
+ 8 brighton coffee shop      los angeles  los angeles
+ 9 bristol farms market cafe los anegeles los angeles
+10 cafe'50s                  los angeles  los angeles
+
+
+
+
 
