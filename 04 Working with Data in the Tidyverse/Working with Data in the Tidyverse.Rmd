@@ -111,9 +111,119 @@ Take a glimpse of the bakeoff data we imported in the first set of exercises. On
 (Pressing Enter in the console will not add a new line, but will run the code on the current line. If you'd like to add a new line before running your code, you can use Shift+Enter)
 
 ```{r}
-bakeoff %>% arrange(us_airdate) %>% select(us_airdate)
+
 ```
 
+#=========================== 02 Tame your data
+
+Exercise
+Cast a column to a date
+
+As we saw in the video, a good workflow for parsing dates using readr is to, for example:
+
+    Use parse_date("2012-14-08", format = "%Y-%d-%m") first, then
+    Use col_date(format = "%Y-%d-%m") within cols() as the col_types argument of read_csv().
+
+In "desserts.csv", the variable uk_airdate is formatted like "17 August 2010". Let's parse, then cast this variable!
+
+Later on in Chapter 4, we'll showcase some functions from the lubridate package to help you extract data from dates, once they are cast properly.
+Instructions 1/3
+30 XP
+
+    1
+    2
+    3
+
+Use ?parse_date to find the right format to parse the date "17 August 2010".
+
+
+```{r}
+library(readr)
+# Find format to parse "17 August 2010" 
+fecha <- parse_date("17 August 2010", format = "%d %B %Y")
+fecha
+class(fecha)
+
+```
+
+Leer data set desserts
+
+```{r}
+library(readr)
+
+# Create bakeoff but skip first row
+desserts <- read_csv("desserts_tidy.csv")
+
+
+```
 
     
+Exercise
+Recode a character variable
+
+In this exercise, you'll recode() the nut variable in the desserts data. This is a character variable that tells us, for each bake, whether a nut was a key ingredient and if so, what kind of nut!
+
+Remember that the arguments of recode() are the variable that you want to recode, and then an expression of the form old_value = new_value. recode() is most useful when used inside a mutate() to create a new variable or reassign the old one.
+
+Often you want to recode a certain value as missing. In this case, it is important to preserve the data type of the variable. R has built-in words to indicate missing data of various types, for example NA_character_ for missing value for a character variable, or NA_integer_ for missing integer data. The NA value is of the logical type.
+
+Remember that you can use ?function_name_here to read more about arguments and how to use them.
+Instructions 1/3
+30 XP
+
+    1
+    2
+    3
+
+    Count the distinct values in the nut variable, sorting the result based on the number of rows. How many bakes included filberts as the nut?
+```{r}
+library(dplyr)
+# Count rows grouping by nut variable
+desserts %>% count(nut) %>% arrange(desc(n))
+```
+Recode a character variable
+
+In this exercise, you'll recode() the nut variable in the desserts data. This is a character variable that tells us, for each bake, whether a nut was a key ingredient and if so, what kind of nut!
+
+Remember that the arguments of recode() are the variable that you want to recode, and then an expression of the form old_value = new_value. recode() is most useful when used inside a mutate() to create a new variable or reassign the old one.
+
+Often you want to recode a certain value as missing. In this case, it is important to preserve the data type of the variable. R has built-in words to indicate missing data of various types, for example NA_character_ for missing value for a character variable, or NA_integer_ for missing integer data. The NA value is of the logical type.
+
+Remember that you can use ?function_name_here to read more about arguments and how to use them.
+Instructions 2/3
+21 XP
+
+    2
+    3
+
+    What is a "filbert", you may ask? Recode "filbert" to "hazelnut", store the result in the same nut column, and count again.
+```{r}
+# Count rows grouping by nut variable
+desserts %>% 
+    count(nut, sort = TRUE)
     
+# Recode filberts as hazelnuts
+desserts_2 <- desserts %>% 
+  mutate(nut = recode(nut, "filbert" = "hazelnut"))
+
+# Count rows again 
+desserts_2 %>% 
+    count(nut, sort = TRUE)
+```
+Edit your code to also recode "no nut" as a missing character value, and count again to check your work.
+
+```{r}
+# Count rows grouping by nut variable
+desserts %>% 
+    count(nut, sort = TRUE)
+    
+# Edit code to recode "no nut" as missing
+desserts_2 <- desserts %>% 
+  mutate(nut = recode(nut, "filbert" = "hazelnut", 
+                           "no nut" = NA_character_))
+
+# Count rows again 
+desserts_2 %>% 
+    count(nut, sort = TRUE)
+```
+
